@@ -1,18 +1,16 @@
-﻿using RimWorld;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using RimWorld;
 using Verse;
 
 namespace AutoFlicker
 {
     public class Building_AutoFlicker : Building
     {
-        private CompPowerTrader powerComp;
         public List<IntVec3> cellsToAffect;
+        private CompPowerTrader powerComp;
         public List<Thing> thingsToIgnore = new List<Thing>();
+
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             base.SpawnSetup(map, respawningAfterLoad);
@@ -23,6 +21,7 @@ namespace AutoFlicker
                 thingsToIgnore = new List<Thing>();
             }
         }
+
         public override void Tick()
         {
             base.Tick();
@@ -49,13 +48,15 @@ namespace AutoFlicker
             {
                 foreach (var thing in cell.GetThingList(Map))
                 {
-                    if (thing != this && !thingsToIgnore.Contains(thing) && thing is ThingWithComps thingWithComps)
+                    if (thing == this || thingsToIgnore.Contains(thing) || thing is not ThingWithComps thingWithComps)
                     {
-                        var flickableComp = thingWithComps.GetComp<CompFlickable>();
-                        if (flickableComp != null && !flickableComp.SwitchIsOn)
-                        {
-                            things.Add(flickableComp);
-                        }
+                        continue;
+                    }
+
+                    var flickableComp = thingWithComps.GetComp<CompFlickable>();
+                    if (flickableComp != null && !flickableComp.SwitchIsOn)
+                    {
+                        things.Add(flickableComp);
                     }
                 }
             }
@@ -73,16 +74,19 @@ namespace AutoFlicker
             {
                 foreach (var thing in cell.GetThingList(Map))
                 {
-                    if (thing != this && !thingsToIgnore.Contains(thing) && thing is ThingWithComps thingWithComps)
+                    if (thing == this || thingsToIgnore.Contains(thing) || thing is not ThingWithComps thingWithComps)
                     {
-                        var flickableComp = thingWithComps.GetComp<CompFlickable>();
-                        if (flickableComp != null && flickableComp.SwitchIsOn)
-                        {
-                            things.Add(flickableComp);
-                        }
+                        continue;
+                    }
+
+                    var flickableComp = thingWithComps.GetComp<CompFlickable>();
+                    if (flickableComp != null && flickableComp.SwitchIsOn)
+                    {
+                        things.Add(flickableComp);
                     }
                 }
             }
+
             foreach (var thing in things)
             {
                 thing.SwitchIsOn = false;
