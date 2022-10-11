@@ -3,113 +3,112 @@ using System.Linq;
 using RimWorld;
 using Verse;
 
-namespace AutoFlicker
+namespace AutoFlicker;
+
+public class Building_AutoFlicker : Building
 {
-    public class Building_AutoFlicker : Building
+    public List<IntVec3> cellsToAffect;
+    private CompPowerTrader powerComp;
+    public List<Thing> thingsToIgnore = new List<Thing>();
+
+    public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
-        public List<IntVec3> cellsToAffect;
-        private CompPowerTrader powerComp;
-        public List<Thing> thingsToIgnore = new List<Thing>();
-
-        public override void SpawnSetup(Map map, bool respawningAfterLoad)
+        base.SpawnSetup(map, respawningAfterLoad);
+        powerComp = GetComp<CompPowerTrader>();
+        cellsToAffect = this.OccupiedRect().ExpandedBy(1).Cells.ToList();
+        if (thingsToIgnore is null)
         {
-            base.SpawnSetup(map, respawningAfterLoad);
-            powerComp = GetComp<CompPowerTrader>();
-            cellsToAffect = this.OccupiedRect().ExpandedBy(1).Cells.ToList();
-            if (thingsToIgnore is null)
-            {
-                thingsToIgnore = new List<Thing>();
-            }
+            thingsToIgnore = new List<Thing>();
         }
+    }
 
-        public override void Tick()
+    public override void Tick()
+    {
+        base.Tick();
+        if (powerComp.PowerOn)
         {
-            base.Tick();
-            if (powerComp.PowerOn)
-            {
-                EnableFlickablesAround();
-            }
-            else if (!powerComp.PowerOn)
-            {
-                DisableFlickablesAround();
-            }
+            EnableFlickablesAround();
         }
-
-        public override void DrawExtraSelectionOverlays()
+        else if (!powerComp.PowerOn)
         {
-            base.DrawExtraSelectionOverlays();
-            GenDraw.DrawFieldEdges(cellsToAffect);
+            DisableFlickablesAround();
         }
+    }
 
-        public void EnableFlickablesAround()
+    public override void DrawExtraSelectionOverlays()
+    {
+        base.DrawExtraSelectionOverlays();
+        GenDraw.DrawFieldEdges(cellsToAffect);
+    }
+
+    public void EnableFlickablesAround()
+    {
+        var things = new HashSet<CompFlickable>();
+        foreach (var cell in cellsToAffect)
         {
-            var things = new HashSet<CompFlickable>();
-            foreach (var cell in cellsToAffect)
+            foreach (var thing in cell.GetThingList(Map))
             {
-                foreach (var thing in cell.GetThingList(Map))
+                if (thing == this || thingsToIgnore.Contains(thing) || thing is not ThingWithComps thingWithComps)
                 {
-                    if (thing == this || thingsToIgnore.Contains(thing) || thing is not ThingWithComps thingWithComps)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var flickableComp = thingWithComps.GetComp<CompFlickable>();
-                    if (flickableComp != null && !flickableComp.SwitchIsOn)
-                    {
-                        things.Add(flickableComp);
-                    }
+                var flickableComp = thingWithComps.GetComp<CompFlickable>();
+                if (flickableComp is { SwitchIsOn: false })
+                {
+                    things.Add(flickableComp);
                 }
             }
-
-            foreach (var thing in things)
-            {
-                thing.SwitchIsOn = true;
-            }
         }
 
-        public void DisableFlickablesAround()
+        foreach (var thing in things)
         {
-            var things = new HashSet<CompFlickable>();
-            foreach (var cell in cellsToAffect)
-            {
-                foreach (var thing in cell.GetThingList(Map))
-                {
-                    if (thing == this || thingsToIgnore.Contains(thing) || thing is not ThingWithComps thingWithComps)
-                    {
-                        continue;
-                    }
+            thing.SwitchIsOn = true;
+        }
+    }
 
-                    var flickableComp = thingWithComps.GetComp<CompFlickable>();
-                    if (flickableComp != null && flickableComp.SwitchIsOn)
-                    {
-                        things.Add(flickableComp);
-                    }
+    public void DisableFlickablesAround()
+    {
+        var things = new HashSet<CompFlickable>();
+        foreach (var cell in cellsToAffect)
+        {
+            foreach (var thing in cell.GetThingList(Map))
+            {
+                if (thing == this || thingsToIgnore.Contains(thing) || thing is not ThingWithComps thingWithComps)
+                {
+                    continue;
+                }
+
+                var flickableComp = thingWithComps.GetComp<CompFlickable>();
+                if (flickableComp is { SwitchIsOn: true })
+                {
+                    things.Add(flickableComp);
                 }
             }
-
-            foreach (var thing in things)
-            {
-                thing.SwitchIsOn = false;
-            }
         }
 
-        protected override void ReceiveCompSignal(string signal)
+        foreach (var thing in things)
         {
-            base.ReceiveCompSignal(signal);
-            if ("FlickedOff" == signal)
-            {
-                DisableFlickablesAround();
-            }
-            else if (signal == "FlickedOn")
-            {
-                EnableFlickablesAround();
-            }
+            thing.SwitchIsOn = false;
         }
+    }
 
-        public override void ExposeData()
+    protected override void ReceiveCompSignal(string signal)
+    {
+        base.ReceiveCompSignal(signal);
+        if ("FlickedOff" == signal)
         {
-            base.ExposeData();
-            Scribe_Collections.Look(ref thingsToIgnore, "thingsToIgnore", LookMode.Reference);
+            DisableFlickablesAround();
         }
+        else if (signal == "FlickedOn")
+        {
+            EnableFlickablesAround();
+        }
+    }
+
+    public override void ExposeData()
+    {
+        base.ExposeData();
+        Scribe_Collections.Look(ref thingsToIgnore, "thingsToIgnore", LookMode.Reference);
     }
 }
