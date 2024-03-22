@@ -9,7 +9,7 @@ public class Building_AutoFlicker : Building
 {
     public List<IntVec3> cellsToAffect;
     private CompPowerTrader powerComp;
-    public List<Thing> thingsToIgnore = new List<Thing>();
+    public List<Thing> thingsToIgnore = [];
 
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
@@ -18,7 +18,7 @@ public class Building_AutoFlicker : Building
         cellsToAffect = this.OccupiedRect().ExpandedBy(1).Cells.ToList();
         if (thingsToIgnore is null)
         {
-            thingsToIgnore = new List<Thing>();
+            thingsToIgnore = [];
         }
     }
 
