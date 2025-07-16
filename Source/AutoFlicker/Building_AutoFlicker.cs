@@ -16,22 +16,20 @@ public class Building_AutoFlicker : Building
         base.SpawnSetup(map, respawningAfterLoad);
         powerComp = GetComp<CompPowerTrader>();
         cellsToAffect = this.OccupiedRect().ExpandedBy(1).Cells.ToList();
-        if (thingsToIgnore is null)
-        {
-            thingsToIgnore = [];
-        }
+        thingsToIgnore ??= [];
     }
 
-    public override void Tick()
+    protected override void Tick()
     {
         base.Tick();
-        if (powerComp.PowerOn)
+        switch (powerComp.PowerOn)
         {
-            EnableFlickablesAround();
-        }
-        else if (!powerComp.PowerOn)
-        {
-            DisableFlickablesAround();
+            case true:
+                enableFlickablesAround();
+                break;
+            case false:
+                disableFlickablesAround();
+                break;
         }
     }
 
@@ -41,7 +39,7 @@ public class Building_AutoFlicker : Building
         GenDraw.DrawFieldEdges(cellsToAffect);
     }
 
-    public void EnableFlickablesAround()
+    private void enableFlickablesAround()
     {
         var things = new HashSet<CompFlickable>();
         foreach (var cell in cellsToAffect)
@@ -67,7 +65,7 @@ public class Building_AutoFlicker : Building
         }
     }
 
-    public void DisableFlickablesAround()
+    private void disableFlickablesAround()
     {
         var things = new HashSet<CompFlickable>();
         foreach (var cell in cellsToAffect)
@@ -96,13 +94,14 @@ public class Building_AutoFlicker : Building
     protected override void ReceiveCompSignal(string signal)
     {
         base.ReceiveCompSignal(signal);
-        if ("FlickedOff" == signal)
+        switch (signal)
         {
-            DisableFlickablesAround();
-        }
-        else if (signal == "FlickedOn")
-        {
-            EnableFlickablesAround();
+            case "FlickedOff":
+                disableFlickablesAround();
+                break;
+            case "FlickedOn":
+                enableFlickablesAround();
+                break;
         }
     }
 

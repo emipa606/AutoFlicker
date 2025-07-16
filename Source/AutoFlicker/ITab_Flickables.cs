@@ -7,11 +7,11 @@ namespace AutoFlicker;
 
 public class ITab_Flickables : ITab
 {
-    private static readonly Vector2 WinSize = new Vector2(300f, 480f);
+    private static readonly Vector2 winSize = new(300f, 480f);
 
     public ITab_Flickables()
     {
-        size = WinSize;
+        size = winSize;
         labelKey = "AF.Flickables";
     }
 
@@ -19,7 +19,7 @@ public class ITab_Flickables : ITab
 
     protected override void FillTab()
     {
-        var position = new Rect(0f, 0f, WinSize.x, WinSize.y).ContractedBy(10f);
+        var position = new Rect(0f, 0f, winSize.x, winSize.y).ContractedBy(10f);
         var autoFlicker = SelObject as Building_AutoFlicker;
         var yPos = 15;
         var things = new HashSet<Thing>();

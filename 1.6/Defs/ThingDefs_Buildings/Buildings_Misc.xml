@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <ThingDef ParentName="BuildingBase">
     <defName>AF_AutoFlicker</defName>
@@ -27,7 +27,6 @@
       <Flammability>0.5</Flammability>
       <Beauty>-2</Beauty>
     </statBases>
-    <placingDraggableDimensions>0</placingDraggableDimensions>
     <costList>
       <Steel>15</Steel>
       <ComponentIndustrial>1</ComponentIndustrial>

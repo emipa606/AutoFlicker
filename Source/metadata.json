@@ -2,5 +2,18 @@
   "Continued": false,
   "CanAdd": "0",
   "CanRemove": "2",
-  "PreviewVersion": "1.5"
+  "PreviewVersion": "1.6",
+  "Patches": false,
+  "Defs": true,
+  "Assemblies": true,
+  "LinesOfCode": 6168,
+  "LinesOfXML": 1909,
+  "CodeBaseSize": 62,
+  "LastXmlCleaning": "2025-07-16T19:56:07.2252642+02:00",
+  "SocialImageSet": true,
+  "FundingSet": true,
+  "SearchTags": [
+    " building",
+    "toggle"
+  ]
 }
