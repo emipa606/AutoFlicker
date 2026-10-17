@@ -1,38 +1,74 @@
-# Copilot Instructions for RimWorld Modding Project
+# Copilot Instructions for Auto Flicker Mod Development
 
 ## Mod Overview and Purpose
 
-This RimWorld mod aims to enhance the player experience by automating certain tasks related to power management. Specifically, the mod introduces a system that automatically flicks power switches on or off based on certain conditions, thereby simplifying micromanagement for players. This mod is designed for use with the game version that supports .NET Framework 4.7.2 and above.
+**Mod Name:** Auto Flicker  
+**Author:** Taranchuk  
+**Commissioned by:** Lucky  
+**PackageId:** Mlie.AutoFlicker  
+
+Auto Flicker is a mod designed to enhance and automate the process of toggling or "flicking" buildings in RimWorld that possess the flickable tag. It aims to provide a more seamless and automated experience in managing power and other toggle-dependent functions within the game. By supporting all buildings with the flickable tag, it ensures compatibility with both vanilla and modded buildings, thereby expanding its utility across various mod setups.
 
 ## Key Features and Systems
 
-- **Automatic Power Flicking:** The mod introduces the `Building_AutoFlicker` class, which provides functionality to automatically enable or disable nearby flickable components based on game conditions.
-- **Interface Integration:** Includes a custom ITab (`ITab_Flickables`) to allow players to manually interact with flickables and view the status of automated flicking.
-- **XML Integration:** The mod seamlessly integrates with RimWorld's XML definition files for easy addition and modification of flickables and their properties.
+- **Automated Building Toggle:** Automatically toggles buildings that have the flickable tag based on game conditions.
+- **Compatibility:** Works with both the base game and other mods, ensuring a broad range of supported structures.
+- **User Interface:** Provides an ITab (Interface Tab) for managing flickable buildings directly from the UI.
+- **Flexibility:** Supports a range of buildings, extending functionality to all flickable components in the game world.
 
 ## Coding Patterns and Conventions
 
-- **File Naming:** Use PascalCase for class names and camelCase for method names, following C# conventions.
-- **Class Design:** Each class is focused on a single responsibility — for example, `Building_AutoFlicker` manages the automation logic for flickable buildings.
-- **Method Structure:** Keep methods concise and focused on one task. For example, `EnableFlickablesAround` and `DisableFlickablesAround` are self-explanatory and maintain single responsibility.
+### C# Code Structure
+
+- **Types and Members:**
+  - `Building_AutoFlicker.cs`: Main logic for handling flickable buildings.
+    - Members include methods like `disableFlickablesAround`, `enableFlickablesAround`, and lifecycle methods such as `SpawnSetup`, `Tick`, and `ExposeData`.
+  - `ITab_Flickables.cs`: Manages the user interface for flickable buildings.
+    - Includes methods like `FillTab` and `IsVisible`.
+
+- **Conventions:**
+  - Consistency with naming and structure, following C# conventions for readability and maintainability.
+  - Method names are verbose and descriptive of their function (`enableFlickablesAround`, `disableFlickablesAround`).
+  - Lifecycle methods (`SpawnSetup`, `Tick`, etc.) are used to integrate with RimWorld's game loop.
 
 ## XML Integration
 
-- **Defining New Buildings:** XML files define the properties of new buildings that support the auto-flicker functionality. Ensure these XML files are properly referenced in the mod's `About` folder.
-- **Patch Extensions:** Use XML extensions to patch existing game definitions where necessary, providing added layers of functionality or altering default behaviors.
+- **XML File Structure:**
+  - `Buildings_Misc.xml` in `ThingDefs_Buildings`: Defines properties for flickable buildings.
+    - These XML files are essential for registering new building types and their behaviors.
+  - Translational templates for additional language support and localization efforts.
+
+- **XML Conventions:**
+  - Use of `ThingDef` to define new building behaviors and ensure compatibility.
+  - Clear and structured XML that adheres to RimWorld's definition formats for ease of integration.
 
 ## Harmony Patching
 
-Harmony is used extensively to patch existing game functions that require modification for the mod’s features. Ensure patches are:
+- **Objective:** Use Harmony to patch game methods, ensuring that toggling behaviors are correctly injected into existing game logic.
+- **Where Useful:** Primarily in extending or modifying existing game classes that interact with the flicking mechanism, ensuring the mod can automate or adjust how these systems behave without altering the core game files.
+- **Considerations:** Maintain cross-compatibility with other mods by ensuring non-invasive patches and cleaning up any changes on mod disable.
 
-- **Non-Invasive:** Avoid altering existing game files; use Harmony’s patching capabilities to override or extend methods as necessary.
-- **Well-Documented:** Each patch should have comments explaining the original method’s purpose and what changes the mod introduces through the patch.
+## Suggestions for Copilot Usage
 
-## Suggestions for Copilot
+- **Code Completion:** Utilize Copilot for generating boilerplate code for common RimWorld modding tasks, such as defining defs or creating lifecycle methods.
+- **Pattern Recognition:** Assist with harmonizing C# design patterns and XML structure across new additions to the mod.
+- **Refactoring Suggestions:** Enhance readability and performance by suggesting improvements to existing code, particularly focusing on method extraction and single-responsibility principles.
+- **Documentation:** Auto-generate comments and documentation within code files to maintain clarity, particularly around complex logic in `Building_AutoFlicker.cs`.
 
-- **Auto-Completion for Methods:** Use Copilot to suggest templates for new methods, especially those that deal with enabling/disabling components in the game.
-- **XML Template Suggestions:** Make use of Copilot to draft property definitions in XML, allowing for quicker setup of new building definitions.
-- **Patch Generation:** Utilize Copilot’s suggestions to create Harmony patches, ensuring that all necessary attributes and hooks are correctly set up.
-- **Consistent Naming:** Leverage Copilot to maintain consistent naming conventions across the project, particularly when defining new classes and methods related to game logic.
+By adhering to these instructions, developers working on Auto Flicker can maintain a cohesive and functional mod while utilizing GitHub Copilot to streamline the development process.
 
-By adhering to these guidelines, contributors can ensure that their additions to the mod are aligned with existing structures and conventions, promoting maintainability and coherence across the project.
+## Project Solution Guidelines
+- Relevant mod XML files are included as Solution Items under the solution folder named XML, these can be read and modified from within the solution.
+- Use these in-solution XML files as the primary files for reference and modification.
+- The `.github/copilot-instructions.md` file is included in the solution under the `.github` solution folder, so it should be read/modified from within the solution instead of using paths outside the solution. Update this file once only, as it and the parent-path solution reference point to the same file in this workspace.
+- When making functional changes in this mod, ensure the documented features stay in sync with implementation; use the in-solution `.github` copy as the primary file.
+- In the solution is also a project called Assembly-CSharp, containing a read-only version of the decompiled game source, for reference and debugging purposes.
+- For any new documentation, update this copilot-instructions.md file rather than creating separate documentation files.
+
+
+## Hard rules (must follow)
+- Do NOT run commands that modify the repo (no git commit, git apply, dotnet format) unless explicitly asked.
+- Prefer minimal reads: read only the smallest code region needed (around the suspicious lines).
+- When mentioning SonarQube issues, automatically use the SonarQube MCP service to fetch and address issues instead of making inferred fixes without querying SonarQube first.
+- When mentioning the rimworld log, automatically use the Rimworld MCP service to fetch the log.
+
